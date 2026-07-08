@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, BrainCircuit, Code, Bot, Cpu, Shield, Rocket, Zap } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, ChevronRight, BrainCircuit, Code, Bot, Cpu, Shield, Rocket, Zap } from 'lucide-react'
 import type { PhaseGroup } from '../../utils'
 
 const PHASE_ICONS = [
@@ -59,7 +59,7 @@ export default function Sidebar({
                 <span style={{ fontWeight: 400, color: 'var(--text-tertiary)', fontSize: '0.75rem', marginLeft: '-0.2rem' }}>
                   — {phase.phaseName}
                 </span>
-                <span className="group-arrow">▶</span>
+                <ChevronRight size={12} className="group-arrow" />
               </div>
               <div className="sidebar__nav-group-children">
                 {phase.terms.map(term => {
@@ -89,15 +89,7 @@ export default function Sidebar({
       </aside>
 
       {isOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 55,
-            background: 'var(--overlay)',
-          }}
-          onClick={onClose}
-        />
+        <div className="sidebar__backdrop" onClick={onClose} />
       )}
     </>
   )

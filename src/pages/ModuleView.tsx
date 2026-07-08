@@ -1,9 +1,11 @@
+import 'prismjs/themes/prism-tomorrow.css'
 import { useParams } from 'react-router-dom'
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
+import rehypePrism from 'rehype-prism-plus'
 import ModuleLayout from '../components/layout/ModuleLayout'
 import TheoryBlock from '../components/content/TheoryBlock'
 import IntuitionBlock from '../components/content/IntuitionBlock'
@@ -115,7 +117,7 @@ export default function ModuleView() {
       })
       const nextIdx = Math.min(currentIdx + 1, allTermIds.length - 1)
       const target = document.getElementById(allTermIds[nextIdx])
-      target?.scrollIntoView({ behavior: 'smooth' })
+      target?.scrollIntoView({ behavior: 'instant' })
     }
     if (e.key === 'k' || e.key === 'K') {
       const currentIdx = allTermIds.findIndex(id => {
@@ -126,7 +128,7 @@ export default function ModuleView() {
       })
       const prevIdx = Math.max(currentIdx - 1, 0)
       const target = document.getElementById(allTermIds[prevIdx])
-      target?.scrollIntoView({ behavior: 'smooth' })
+      target?.scrollIntoView({ behavior: 'instant' })
     }
   }, [allTermIds])
 
@@ -182,7 +184,7 @@ export default function ModuleView() {
                 </div>
                 <ReactMarkdown
                   remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeRaw, rehypeKatex]}
+                  rehypePlugins={[rehypeRaw, rehypeKatex, rehypePrism]}
                   components={{
                     h3: () => null,
                     theory: ({ children }) => <TheoryBlock>{children}</TheoryBlock>,

@@ -59,8 +59,8 @@
   --bg-tertiary: #F5F3FF;
 
   --text-primary: #1E1B4B;
-  --text-secondary: #6B7280;
-  --text-tertiary: #9CA3AF;
+  --text-secondary: #4B5563;
+  --text-tertiary: #6B7280;
 
   --border: #E5E7EB;
   --border-light: #F3F4F6;
@@ -194,6 +194,11 @@ html {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 body {
@@ -819,6 +824,14 @@ pre {
 
 .sidebar__mobile-toggle {
   display: none;
+}
+
+.sidebar__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: var(--overlay);
+  transition: opacity 200ms var(--ease-out);
 }
 
 /* ===== Content Blocks ===== */

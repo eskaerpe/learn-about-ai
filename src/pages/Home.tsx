@@ -11,6 +11,7 @@ interface ModuleCardData {
 }
 
 const moduleConfigs = import.meta.glob('../modules/*/config.ts', { eager: true, import: 'config' }) as Record<string, ModuleCardData>
+const moduleMarkdowns = import.meta.glob('../modules/*/module.md', { eager: true, query: '?raw', import: 'default' }) as Record<string, string>
 
 export default function Home() {
   const modules = useMemo(() => {
@@ -18,9 +19,17 @@ export default function Home() {
   }, [])
 
   const stats = useMemo(() => {
-    const totalIstilah = modules.length > 0 ? 54 : 0
-    const totalFase = 7
-    return { totalIstilah, totalFase, totalModules: modules.length }
+    let totalTerms = 0, totalFlashcards = 0, totalQuiz = 0
+    for (const content of Object.values(moduleMarkdowns)) {
+      const fc = content.match(/<Flashcard /g)
+      if (fc) totalFlashcards += fc.length
+      const qz = content.match(/<Quiz /g)
+      if (qz) totalQuiz += qz.length
+      const terms = content.match(/^### /gm)
+      if (terms) totalTerms += terms.length
+    }
+    const phaseCount = Object.keys(moduleMarkdowns).filter(p => p.includes('phase-')).length
+    return { totalIstilah: totalTerms, totalFase: phaseCount, totalModules: modules.length, totalFlashcards, totalQuiz }
   }, [modules])
 
   return (
@@ -31,12 +40,13 @@ export default function Home() {
           <span>Modul Belajar Interaktif</span>
         </div>
         <h1>AI & Software Engineering<br />Dictionary 2026</h1>
-        <p>Kamus interaktif untuk memahami 54 istilah AI dan Software Engineering — dari Mental Model hingga Daily Productivity. Dilengkapi flashcards, quiz, dan tracking progress.</p>
+        <p>Kamus interaktif untuk memahami {stats.totalIstilah} istilah AI dan Software Engineering — dari Mental Model hingga Daily Productivity.</p>
         <div className="home__hero-meta">
-          <span><List size={14} /> 54 Istilah</span>
+          <span><List size={14} /> {stats.totalIstilah} Istilah</span>
           <span><Layers size={14} /> {stats.totalModules} Modul</span>
           <span><BrainCircuit size={14} /> {stats.totalFase} Fase</span>
-          <span><GraduationCap size={14} /> 12 Quiz</span>
+          <span><GraduationCap size={14} /> {stats.totalFlashcards} Flashcards</span>
+          <span><GraduationCap size={14} /> {stats.totalQuiz} Quiz</span>
         </div>
       </div>
 
