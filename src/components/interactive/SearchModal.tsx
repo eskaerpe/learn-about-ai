@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Search } from 'lucide-react'
+import { getLenis } from '../../hooks/useSmoothScroll'
 import type { Section } from '../../utils'
 
 interface SearchModalProps {
@@ -59,8 +60,13 @@ export default function SearchModal({ sections, isOpen, onClose }: SearchModalPr
         setActiveIdx(prev => Math.max(prev - 1, 0))
       }
       if (e.key === 'Enter' && results[activeIdx]) {
-        const section = document.getElementById(results[activeIdx].sectionId)
-        section?.scrollIntoView({ behavior: 'smooth' })
+        const lenis = getLenis()
+        const id = results[activeIdx].sectionId
+        if (lenis) {
+          lenis.scrollTo(`#${id}`, { duration: 0.6 })
+        } else {
+          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+        }
         handleClose()
       }
     },
@@ -101,7 +107,13 @@ export default function SearchModal({ sections, isOpen, onClose }: SearchModalPr
               key={r.sectionId}
               className={`search-modal__result${i === activeIdx ? ' search-modal__result--active' : ''}`}
               onClick={() => {
-                document.getElementById(r.sectionId)?.scrollIntoView({ behavior: 'smooth' })
+                const lenis = getLenis()
+                const id = r.sectionId
+                if (lenis) {
+                  lenis.scrollTo(`#${id}`, { duration: 0.6 })
+                } else {
+                  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                }
                 handleClose()
               }}
             >

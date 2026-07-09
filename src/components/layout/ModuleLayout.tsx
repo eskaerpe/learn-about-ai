@@ -4,6 +4,7 @@ import Sidebar from './Sidebar'
 import { useScrollSpy } from '../../hooks/useScrollSpy'
 import { useProgress } from '../../hooks/useProgress'
 import { useReadingProgress } from '../../hooks/useReadingProgress'
+import { getLenis } from '../../hooks/useSmoothScroll'
 import type { Section, PhaseGroup } from '../../utils'
 
 interface ModuleLayoutProps {
@@ -45,7 +46,12 @@ export default function ModuleLayout({ slug, title, sections, phases, flashcards
         completedCount={completed.size}
         totalSections={sections.length}
         onSectionClick={id => {
-          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+          const lenis = getLenis()
+          if (lenis) {
+            lenis.scrollTo(`#${id}`, { duration: 0.6 })
+          } else {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+          }
         }}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
