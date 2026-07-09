@@ -15,6 +15,7 @@ import FlashcardGrid from '../components/interactive/FlashcardGrid'
 import QuizCard from '../components/interactive/QuizCard'
 import SearchModal from '../components/interactive/SearchModal'
 import ScrollToTop from '../components/ui/ScrollToTop'
+import { useScrollReveal } from '../hooks/useScrollReveal'
 import { extractSections, extractPhases, preprocessMarkdown, splitTermBlocks, slugify } from '../utils'
 import type { QuizQuestion } from '../components/interactive/QuizCard'
 
@@ -63,6 +64,7 @@ export default function ModuleView() {
 
   const processedMd = useMemo(() => preprocessMarkdown(rawMarkdown), [rawMarkdown])
   const termBlocks = useMemo(() => splitTermBlocks(processedMd), [processedMd])
+  const revealRef = useScrollReveal<HTMLDivElement>()
 
   const flashcards = useMemo(() => {
     const result: FlashcardData[] = []
@@ -158,70 +160,72 @@ export default function ModuleView() {
         flashcardsCount={flashcards.length}
         quizCount={quizQuestions.length}
       >
-        {termBlocks.map((block, i) => {
-          if (block.type === 'phase-heading') {
-            const text = block.raw.replace(/^## /, '')
-            const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-            return <h2 key={i} id={id} className="section-heading">{text}</h2>
-          }
+        <div ref={revealRef}>
+          {termBlocks.map((block, i) => {
+            if (block.type === 'phase-heading') {
+              const text = block.raw.replace(/^## /, '')
+              const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+              return <h2 key={i} id={id} className="section-heading">{text}</h2>
+            }
 
-          if (block.type === 'hr') {
-            return <hr key={i} className="term-separator" />
-          }
+            if (block.type === 'hr') {
+              return <hr key={i} className="term-separator" />
+            }
 
-          if (block.type === 'term') {
-            const headingMatch = block.raw.match(/^### (.+)$/m)
-            const headingText = headingMatch ? headingMatch[1] : ''
-            const termId = slugify(headingText)
-            const content = block.raw.replace(/^### .+\n/, '')
-            const termPhase = phases.find(p => p.terms.some(t => t.id === termId))
+            if (block.type === 'term') {
+              const headingMatch = block.raw.match(/^### (.+)$/m)
+              const headingText = headingMatch ? headingMatch[1] : ''
+              const termId = slugify(headingText)
+              const content = block.raw.replace(/^### .+\n/, '')
+              const termPhase = phases.find(p => p.terms.some(t => t.id === termId))
 
-            return (
-              <div key={i} className="term-card">
-                <div className="term-card__header">
-                  {termPhase && <span className="term-card__badge">Phase {termPhase.phaseIndex}</span>}
-                  <h3 id={termId} className="term-card__title">{headingText}</h3>
+              return (
+                <div key={i} className="term-card" data-reveal>
+                  <div className="term-card__header">
+                    {termPhase && <span className="term-card__badge">Phase {termPhase.phaseIndex}</span>}
+                    <h3 id={termId} className="term-card__title">{headingText}</h3>
+                  </div>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex, rehypePrism]}
+                    components={{
+                      h3: () => null,
+                      theory: ({ children }) => <TheoryBlock>{children}</TheoryBlock>,
+                      Theory: ({ children }) => <TheoryBlock>{children}</TheoryBlock>,
+                      intuition: ({ children }) => <IntuitionBlock>{children}</IntuitionBlock>,
+                      Intuition: ({ children }) => <IntuitionBlock>{children}</IntuitionBlock>,
+                      example: ({ children }) => {
+                        exampleCounter++
+                        return <WorkedExample number={exampleCounter}>{children}</WorkedExample>
+                      },
+                      Example: ({ children }) => {
+                        exampleCounter++
+                        return <WorkedExample number={exampleCounter}>{children}</WorkedExample>
+                      },
+                      conclusion: ({ children }) => <ConclusionBox>{children}</ConclusionBox>,
+                      Conclusion: ({ children }) => <ConclusionBox>{children}</ConclusionBox>,
+                      flashcard: () => null,
+                      Flashcard: () => null,
+                      quiz: () => null,
+                      Quiz: () => null,
+                      strong: (props) => {
+                        const text = extractText(props.children)
+                        if (text?.includes('🦊') || text?.includes('Opportunist')) {
+                          return <>{props.children}</>
+                        }
+                        return <strong>{props.children}</strong>
+                      },
+                    }}
+                  >
+                    {content}
+                  </ReactMarkdown>
                 </div>
-                <ReactMarkdown
-                  remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeRaw, rehypeKatex, rehypePrism]}
-                  components={{
-                    h3: () => null,
-                    theory: ({ children }) => <TheoryBlock>{children}</TheoryBlock>,
-                    Theory: ({ children }) => <TheoryBlock>{children}</TheoryBlock>,
-                    intuition: ({ children }) => <IntuitionBlock>{children}</IntuitionBlock>,
-                    Intuition: ({ children }) => <IntuitionBlock>{children}</IntuitionBlock>,
-                    example: ({ children }) => {
-                      exampleCounter++
-                      return <WorkedExample number={exampleCounter}>{children}</WorkedExample>
-                    },
-                    Example: ({ children }) => {
-                      exampleCounter++
-                      return <WorkedExample number={exampleCounter}>{children}</WorkedExample>
-                    },
-                    conclusion: ({ children }) => <ConclusionBox>{children}</ConclusionBox>,
-                    Conclusion: ({ children }) => <ConclusionBox>{children}</ConclusionBox>,
-                    flashcard: () => null,
-                    Flashcard: () => null,
-                    quiz: () => null,
-                    Quiz: () => null,
-                    strong: (props) => {
-                      const text = extractText(props.children)
-                      if (text?.includes('🦊') || text?.includes('Opportunist')) {
-                        return <>{props.children}</>
-                      }
-                      return <strong>{props.children}</strong>
-                    },
-                  }}
-                >
-                  {content}
-                </ReactMarkdown>
-              </div>
-            )
-          }
+              )
+            }
 
-          return null
-        })}
+            return null
+          })}
+        </div>
 
         {flashcards.length > 0 && (
           <div style={{ marginTop: '2rem' }}>

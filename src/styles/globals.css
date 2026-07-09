@@ -1028,8 +1028,13 @@ pre {
   padding: 1.5rem 1.75rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+  transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out), border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
   scroll-margin-top: calc(var(--navbar-height) + 1rem);
+}
+
+.term-card[data-reveal]:not([data-visible]) {
+  opacity: 0;
+  transform: translateY(16px);
 }
 
 @media (hover: hover) and (pointer: fine) {
