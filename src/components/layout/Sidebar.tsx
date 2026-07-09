@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, ChevronRight, BrainCircuit, Code, Bot, Cpu, Shield, Rocket, Zap } from 'lucide-react'
+import { ArrowLeft, ChevronRight, BrainCircuit, Code, Bot, Cpu, Shield, Rocket, Zap } from 'lucide-react'
 import type { PhaseGroup } from '../../utils'
+import { getTermIcon } from '../../utils'
 
 const PHASE_ICONS = [
   BrainCircuit, Code, Bot, Cpu, Shield, Rocket, Zap,
@@ -75,9 +76,14 @@ export default function Sidebar({
                         onClose()
                       }}
                     >
-                      <span className={`sidebar__ring${isCompleted ? ' sidebar__ring--done' : ''}`}>
-                        {isCompleted && <CheckCircle2 size={10} color="white" />}
-                      </span>
+                      {(() => {
+                        const TermIcon = getTermIcon(term.id)
+                        return (
+                          <span className={`sidebar__term-icon${isCompleted ? ' sidebar__term-icon--done' : ''}`}>
+                            <TermIcon size={14} strokeWidth={1.5} />
+                          </span>
+                        )
+                      })()}
                       <span>{term.title}</span>
                     </div>
                   )

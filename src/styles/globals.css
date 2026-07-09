@@ -773,21 +773,23 @@ pre {
   font-weight: 500;
 }
 
-.sidebar__ring {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  flex-shrink: 0;
+.sidebar__term-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: color 200ms var(--ease-out);
 }
 
-.sidebar__ring--done {
-  border-color: var(--accent);
-  background: var(--accent);
+.sidebar__nav-item--active .sidebar__term-icon {
+  color: var(--primary);
+}
+
+.sidebar__term-icon--done {
+  color: var(--success);
 }
 
 .sidebar__check {
